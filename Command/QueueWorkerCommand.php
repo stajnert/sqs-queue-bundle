@@ -27,6 +27,7 @@ class QueueWorkerCommand extends ContainerAwareCommand
             ->addArgument('name', InputArgument::REQUIRED, 'Queue Name', null)
             ->addOption('messages', 'm', InputOption::VALUE_OPTIONAL, 'Messages to consume', 0)
             ->addOption('limit', 'l', InputOption::VALUE_OPTIONAL, 'Max messages to consume per request', 1)
+            ->addOption('time-limit', 't', InputOption::VALUE_OPTIONAL, 'Consume messages during this time (in seconds)', 0)
             ->setDescription('Start a worker that will listen to a specified SQS queue');
     }
 
@@ -49,6 +50,12 @@ class QueueWorkerCommand extends ContainerAwareCommand
             throw new \InvalidArgumentException("The -l option should be null or greater than 1");
         }
 
+        $timeLimit = $input->getOption('time');
+        if ($timeLimit < 0) {
+            throw new \InvalidArgumentException("The -t option should be null or greater than 0");
+        }
+
+
         $io = new SymfonyStyle($input, $output);
         $io->title(sprintf('Start listening to queue <comment>%s</comment>', $queueName));
 
@@ -57,6 +64,6 @@ class QueueWorkerCommand extends ContainerAwareCommand
 
         /** @var BaseWorker $worker */
         $worker = $this->getContainer()->get('tritran.sqs_queue.queue_worker');
-        $worker->start($queue, $amount, $limit);
+        $worker->start($queue, $amount, $limit, $timeLimit);
     }
 }

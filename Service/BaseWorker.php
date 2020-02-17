@@ -21,24 +21,36 @@ class BaseWorker
      * @param BaseQueue $queue
      * @param int $amount
      * @param int $limit Zero is all
+     * @param int $timeLimit Zero is no time limit
      */
-    public function start(BaseQueue $queue, int $amount = 0, int $limit = 1)
+    public function start(BaseQueue $queue, int $amount = 0, int $limit = 1, int $timeLimit = 0)
     {
         $this->consumed = 0;
-        $this->consume($queue, $amount, $limit);
+        $this->consume($queue, $amount, $limit, $timeLimit);
     }
 
     /**
      * @param BaseQueue $queue
      * @param int $amount
      * @param int $limit
+     * @param int $timeLimit
      */
-    private function consume(BaseQueue $queue, int $amount = 0, int $limit = 1)
+    private function consume(BaseQueue $queue, int $amount = 0, int $limit = 1, int $timeLimit = 0)
     {
+        $startTime = time();
+
         while (true) {
             if ($amount && $this->consumed >= $amount) {
                 break;
             }
+
+            if ($timeLimit && (time() - $startTime) > $timeLimit) {
+                $this->logger && $this->logger->info(
+                    sprintf('Time limit. $startTime: %d, $runTime: %d', $startTime, (time() - $startTime))
+                );
+                break;
+            }
+
             $this->fetchMessage($queue, $limit);
         }
     }
