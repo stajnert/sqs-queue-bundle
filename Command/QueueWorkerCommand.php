@@ -50,7 +50,7 @@ class QueueWorkerCommand extends ContainerAwareCommand
             throw new \InvalidArgumentException("The -l option should be null or greater than 1");
         }
 
-        $timeLimit = $input->getOption('time');
+        $timeLimit = $input->getOption('time-limit');
         if ($timeLimit < 0) {
             throw new \InvalidArgumentException("The -t option should be null or greater than 0");
         }
