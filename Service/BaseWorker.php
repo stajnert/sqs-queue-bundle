@@ -45,9 +45,6 @@ class BaseWorker
             }
 
             if ($timeLimit && (time() - $startTime) > $timeLimit) {
-                $this->logger && $this->logger->info(
-                    sprintf('Time limit. $startTime: %d, $runTime: %d', $startTime, (time() - $startTime))
-                );
                 break;
             }
 
@@ -73,13 +70,13 @@ class BaseWorker
             /** @var Message $message */
             $message = $messages->current();
 
-            $this->logger && $this->logger->info(sprintf('Processing message ID: %s', $message->getId()));
+            //$this->logger && $this->logger->info(sprintf('Processing message ID: %s', $message->getId()));
             $result = $consumer->process($message);
 
             if ($result !== false) {
-                $this->logger && $this->logger->info(
-                    sprintf('Successfully processed message ID: %s', $message->getId())
-                );
+                // $this->logger && $this->logger->info(
+                //     sprintf('Successfully processed message ID: %s', $message->getId())
+                // );
                 $queue->deleteMessage($message);
             } else {
                 $this->logger && $this->logger->warning(
